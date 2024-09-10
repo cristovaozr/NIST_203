@@ -136,4 +136,5 @@ class XOF:
         :param size_bits: Number of bits to get from the XOF
         :return: Data
         """
-        return self.ctx.digest(size_bits//8)
+        b = self.ctx.digest(size_bits//8)
+        return b

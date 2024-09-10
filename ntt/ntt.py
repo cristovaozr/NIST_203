@@ -147,3 +147,9 @@ def BaseCaseMultiply(a0: int, a1: int, b0: int, b1: int, gamma: int) -> (int, in
     c1 = (a0*b1 + a1*b0) % Constants.q
 
     return c0, c1
+
+
+def SumNTTs(f_hat, g_hat) -> [int]:
+    s = [(f+g) % Constants.q for f, g in zip(f_hat, g_hat)]
+
+    return s

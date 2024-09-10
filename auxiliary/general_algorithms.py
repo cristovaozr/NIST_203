@@ -44,7 +44,7 @@ def BytesToBits(b: bytes) -> str:
     return bit_str
 
 
-def BytesEncode(f: [int], d: int) -> bytes:
+def ByteEncode(f: [int], d: int) -> bytes:
     """Transforms a list of 256 integers into an array of bytes
     The array of bytes iS built using all 256 integers from f arranged as d-bit words
 
@@ -76,7 +76,7 @@ def BytesEncode(f: [int], d: int) -> bytes:
     return enc
 
 
-def BytesDecode(b: bytes, d: int) -> [int]:
+def ByteDecode(b: bytes, d: int) -> [int]:
     """Decodes a byte array into the polynomial coefficients
     The list of coefficients are built from the d-bit words in the byte array
 
@@ -170,11 +170,11 @@ def SampleNTT(b: bytes) -> [int]:
     ctx.Init()
     ctx.Absorb(b)
     a_hat = [0]*256
-    digest = ctx.Squeeze(256*3*8)
+    # digest = ctx.Squeeze(256*3*8)
 
     j = 0
     while j < 256:
-        C = digest[3*j:3*(j+1)]
+        C = ctx.Squeeze(3*8)  #digest[3*j:3*(j+1)]
         c0 = C[0]
         c1 = C[1]
         c2 = C[2]
@@ -190,7 +190,7 @@ def SampleNTT(b: bytes) -> [int]:
     return a_hat
 
 
-def SamplePolyBCD(b: bytes, eta: int) -> [int]:
+def SamplePolyCBD(b: bytes, eta: int) -> [int]:
     """Samples a polynomial according to the Centered Binomial Distribution (CBD)
 
     FIPS.203, section 4.2.2, page 23
@@ -199,7 +199,7 @@ def SamplePolyBCD(b: bytes, eta: int) -> [int]:
     :param eta:
     :return:
     """
-    if len(b) != 84 * eta:
+    if len(b) != (64 * eta):
         raise InvalidParameterException(f"The parameter b has length {len(b)} but must be {64*eta}")
 
     f = [0]*256
