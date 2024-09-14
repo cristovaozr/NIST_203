@@ -28,7 +28,7 @@ ZETA_BIT_REV7 = [
     1722, 1212, 1874, 1029, 2110, 2935, 885, 2154
 ]
 
-ZETA_BIT_REV71 = [
+ZETA_2BIT_REV71 = [
     17, -17, 2761, -2761, 583, -583, 2649, -2649,
     1637, -1637, 723, -723, 2288, -2288, 1100, -1100,
     1409, -1409, 2662, -2662, 3281, -3281, 233, -233,
@@ -125,7 +125,7 @@ def MultiplyNTTs(f_hat: [int], g_hat: [int]) -> [int]:
         z_hat[2*i], z_hat[2*i+1] = BaseCaseMultiply(
             f_hat[2*1], f_hat[2*i+1],
             g_hat[2*i], g_hat[2*i+1],
-            ZETA_BIT_REV71[i]
+            ZETA_2BIT_REV71[i]
         )
 
     return z_hat

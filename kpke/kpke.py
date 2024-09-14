@@ -8,8 +8,8 @@
 
 from auxiliary.constants import FIPS203Parameters, Constants
 from auxiliary.crypto_functions import (G, PRF)
-from auxiliary.general_algorithms import SampleNTT, SamplePolyCBD, ByteEncode
-from ntt.ntt import NTT, MultiplyNTTs, SumNTTs
+from auxiliary.general_algorithms import SampleNTT, SamplePolyCBD, ByteEncode, Decompress, ByteDecode, Compress
+from ntt.ntt import NTT, MultiplyNTTs, SumNTTs, INTT
 
 
 class KPKE:
@@ -72,3 +72,57 @@ class KPKE:
             dkpke += ByteEncode(s_hat[i], 12)
 
         return ekpke, dkpke
+
+    def Encrypt(self, ekpke: bytes, m: bytes, r: bytes, A_hat = None):
+        N = 0
+        t_hat = []
+        for i in range(self.k):
+            t_hat.append(ekpke[384*i:384*(i+1)])
+
+        rho = ekpke[:-32]
+        if A_hat is None:
+            A_hat = self.k * [[]]
+            for i in range(self.k):
+                A_hat[i] = self.k * [[]]
+                for j in range(self.k):
+                    A_hat[i][j] = SampleNTT(rho + j.to_bytes(1) + i.to_bytes(1))
+
+        y = []
+        for i in range(self.k):
+            y.append(SamplePolyCBD(PRF(self.eta1, r, N.to_bytes(1)), self.eta1))
+            N += 1
+
+        e1 = []
+        for i in range(self.k):
+            e1.append(SamplePolyCBD(PRF(self.eta2, r, N.to_bytes(1)), self.eta2))
+            N += 1
+
+        e2 = SamplePolyCBD(PRF(self.eta2, r, N.to_bytes(1)), self.eta2)
+
+        y_hat = NTT(y)
+        u_hat = []
+        for i in range(self.k):
+            elem = [0]*256
+            for j in range(self.k):
+                u_temp = MultiplyNTTs(A_hat[j][i], y_hat[i])
+                elem = SumNTTs(elem, u_temp)
+            u_hat.append(elem)
+
+        u = INTT(u_hat)
+        u = SumNTTs(u, e1)
+        mu = [Decompress(i, 1) for i in ByteDecode(m, 1)]
+
+        v_hat = MultiplyNTTs(t_hat, y_hat)
+        v_prime = INTT(v_hat)
+        v = [(v_e + e2_e + mu_e) % Constants.q for v_e, e2_e, mu_e in zip(v_prime, e2, mu)]
+        c1 = bytearray()
+        for i in range(self.k):
+            c1 += ByteEncode([Compress(u_e, self.du) for u_e in u[i]], self.du)
+
+        c2 = ByteEncode([Compress(v_e, self.dv) for v_e in v], self.dv)
+
+        c = c1 + c2
+        return c
+
+    def Decrypt(self, dkpke: bytes, c: bytes):
+        pass

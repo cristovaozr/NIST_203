@@ -70,15 +70,16 @@ if __name__ == "__main__":
     # s_hat = NTT(s)
     # # print(s_hat)
     #
-    # poly_f = [1, 1, 2, 3] * 64
-    # poly_g = [1] + [0] * 255
-    # f_hat = NTT(poly_f)  # naive_ntt(poly_f)
-    # g_hat = NTT(poly_g)  # naive_ntt(poly_g)
-    # # z_hat = [f*g % 3329 for f,g in zip(f_hat, g_hat)]
+    poly_f = [1, 2, 3, 4] * 64
+    poly_g = [1] + [0] * 255
+    f_hat = NTT(poly_f)  # naive_ntt(poly_f)
+    # print(f_hat)
+    g_hat = NTT(poly_g)  # naive_ntt(poly_g)
+    z_hat = [f*g % 3329 for f,g in zip(f_hat, g_hat)]
     # z_hat = MultiplyNTTs(f_hat, g_hat)
-    # poly_z = INTT(z_hat)
-    # # poly_z = naive_intt(z_hat)
-    # print(poly_z)
+    poly_z = INTT(z_hat)
+    # poly_z = naive_intt(z_hat)
+    print(poly_z)
 
     # v = [600, 669, 1463, 1988, 2661, 2401, 1809, 2360, 352, 1372, 2581, 247, 2484, 1425, 232, 1772, 2463, 2480, 911,
     #      1705, 581, 1200, 2947, 693, 1883, 1279, 2146, 2354, 1078, 2587, 100, 2836, 3060, 2332, 1478, 2153, 2875, 2252,
@@ -137,4 +138,5 @@ if __name__ == "__main__":
     ekpke, dkpke = my_kpke.KPKE_KeyGen(b'0xa5'*32)
 
     print(ekpke)
-    print(dkpke)
+    print(f"{len(ekpke)=}")
+    print(f"{len(dkpke)=}")
