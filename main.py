@@ -70,16 +70,18 @@ if __name__ == "__main__":
     # s_hat = NTT(s)
     # # print(s_hat)
     #
-    poly_f = [1, 2, 3, 4] * 64
-    poly_g = [1] + [0] * 255
-    f_hat = NTT(poly_f)  # naive_ntt(poly_f)
+    # poly_f = [0, 1, 2, 3] * 64
+    # poly_g = [0, 1] + [0] * 254
+    # f_hat = NTT(poly_f)  # naive_ntt(poly_f)
     # print(f_hat)
-    g_hat = NTT(poly_g)  # naive_ntt(poly_g)
-    z_hat = [f*g % 3329 for f,g in zip(f_hat, g_hat)]
+    # g_hat = NTT(poly_g)  # naive_ntt(poly_g)
+    # print(g_hat)
+    # # z_hat = [f*g % 3329 for f,g in zip(f_hat, g_hat)]
     # z_hat = MultiplyNTTs(f_hat, g_hat)
-    poly_z = INTT(z_hat)
-    # poly_z = naive_intt(z_hat)
-    print(poly_z)
+    # print(z_hat)
+    # poly_z = INTT(z_hat)
+    # # poly_z = naive_intt(z_hat)
+    # print(poly_z)
 
     # v = [600, 669, 1463, 1988, 2661, 2401, 1809, 2360, 352, 1372, 2581, 247, 2484, 1425, 232, 1772, 2463, 2480, 911,
     #      1705, 581, 1200, 2947, 693, 1883, 1279, 2146, 2354, 1078, 2587, 100, 2836, 3060, 2332, 1478, 2153, 2875, 2252,
@@ -135,8 +137,15 @@ if __name__ == "__main__":
     # print(u_comp)
 
     my_kpke = KPKE(FIPS203MLKEM512())
-    ekpke, dkpke = my_kpke.KPKE_KeyGen(b'0xa5'*32)
+    ekpke, dkpke, A_hat = my_kpke.KPKE_KeyGen(b'0xa5'*32)
 
-    print(ekpke)
     print(f"{len(ekpke)=}")
     print(f"{len(dkpke)=}")
+
+    m = b"This is a very secret message!!!"
+    r = b'\xa5'*32
+    c = my_kpke.Encrypt(ekpke, m, r, A_hat)
+    mm = my_kpke.Decrypt(dkpke, c)
+    print(f"cyphered text={c}")
+    print(f"message={m}")
+    print(f"decoded message={mm}")

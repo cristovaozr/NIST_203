@@ -120,15 +120,15 @@ def MultiplyNTTs(f_hat: [int], g_hat: [int]) -> [int]:
     if len(f_hat) != 256 or len(g_hat) != 256:
         raise InvalidParameterException(f"Polynomials with wrong size: f_hat={len(f_hat)}, g_hat={len((g_hat))}")
 
-    z_hat = [0]*256
+    h_hat = []
     for i in range(128):
-        z_hat[2*i], z_hat[2*i+1] = BaseCaseMultiply(
-            f_hat[2*1], f_hat[2*i+1],
+        h_hat += BaseCaseMultiply(
+            f_hat[2*i], f_hat[2*i+1],
             g_hat[2*i], g_hat[2*i+1],
             ZETA_2BIT_REV71[i]
         )
 
-    return z_hat
+    return h_hat
 
 
 def BaseCaseMultiply(a0: int, a1: int, b0: int, b1: int, gamma: int) -> (int, int):

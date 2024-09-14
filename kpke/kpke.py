@@ -21,7 +21,7 @@ class KPKE:
         self.du = param_list["du"]
         self.dv = param_list["dv"]
 
-    def KPKE_KeyGen(self, d: bytes) -> (bytes, bytes):
+    def KPKE_KeyGen(self, d: bytes) -> (bytes, bytes,):
         g_ret = G(d + self.k.to_bytes(1))
         rho = g_ret[0:32]
         sigma = g_ret[32:64]
@@ -71,15 +71,15 @@ class KPKE:
         for i in range(self.k):
             dkpke += ByteEncode(s_hat[i], 12)
 
-        return ekpke, dkpke
+        return ekpke, dkpke, A_hat
 
-    def Encrypt(self, ekpke: bytes, m: bytes, r: bytes, A_hat = None):
+    def Encrypt(self, ekpke: bytes, m: bytes, r: bytes, A_hat = None) -> bytes:
         N = 0
         t_hat = []
         for i in range(self.k):
-            t_hat.append(ekpke[384*i:384*(i+1)])
+            t_hat.append(ByteDecode(ekpke[384*i:384*(i+1)], 12))
 
-        rho = ekpke[:-32]
+        rho = ekpke[384*self.k:]
         if A_hat is None:
             A_hat = self.k * [[]]
             for i in range(self.k):
@@ -99,7 +99,10 @@ class KPKE:
 
         e2 = SamplePolyCBD(PRF(self.eta2, r, N.to_bytes(1)), self.eta2)
 
-        y_hat = NTT(y)
+        y_hat = []
+        for i in range(self.k):
+            y_hat.append(NTT(y[i]))
+
         u_hat = []
         for i in range(self.k):
             elem = [0]*256
@@ -108,13 +111,22 @@ class KPKE:
                 elem = SumNTTs(elem, u_temp)
             u_hat.append(elem)
 
-        u = INTT(u_hat)
-        u = SumNTTs(u, e1)
+        u = []
+        for i in range(self.k):
+            u.append(INTT(u_hat[i]))
+
+        for i in range(self.k):
+            u[i] = SumNTTs(u[i], e1[i])
+
         mu = [Decompress(i, 1) for i in ByteDecode(m, 1)]
 
-        v_hat = MultiplyNTTs(t_hat, y_hat)
-        v_prime = INTT(v_hat)
-        v = [(v_e + e2_e + mu_e) % Constants.q for v_e, e2_e, mu_e in zip(v_prime, e2, mu)]
+        v_hat = [0]*256
+        for i in range(self.k):
+            ty = MultiplyNTTs(t_hat[i], y_hat[i])
+            v_hat = SumNTTs(v_hat, ty)
+
+        v_hat_intt = INTT(v_hat)
+        v = [(v_e + e2_e + mu_e) % Constants.q for v_e, e2_e, mu_e in zip(v_hat_intt, e2, mu)]
         c1 = bytearray()
         for i in range(self.k):
             c1 += ByteEncode([Compress(u_e, self.du) for u_e in u[i]], self.du)
@@ -124,5 +136,32 @@ class KPKE:
         c = c1 + c2
         return c
 
-    def Decrypt(self, dkpke: bytes, c: bytes):
-        pass
+    def Decrypt(self, dkpke: bytes, c: bytes) -> bytes:
+        c1 = c[0:32*self.du*self.k]
+        c2 = c[32*self.du*self.k:32*(self.du*self.k + self.dv)]
+
+        u_prime = []
+        for i in range(self.k):
+            uu = [Decompress(x, self.du) for x in ByteDecode(c1, self.du)]
+            u_prime.append(uu)
+
+        v_prime = [Decompress(x, self.dv) for x in ByteDecode(c2, self.dv)]
+        s_hat = []
+        for i in range(self.k):
+            ss = [Decompress(x, 12) for x in ByteDecode(dkpke[384*i:384*(i+1)], 12)]
+            s_hat.append(ss)
+
+        u_prime_hat = []
+        for i in range(self.k):
+            u_prime_hat.append(NTT(u_prime[i]))
+
+        s_hat_u_prime_hat = [0]*256
+        for i in range(self.k):
+            t = MultiplyNTTs(s_hat, u_prime_hat[i])
+            s_hat_u_prime_hat = SumNTTs(t, s_hat_u_prime_hat)
+
+        s_hat_u_prime_hat_intt = INTT(s_hat_u_prime_hat)
+        w = [(v_prime_e + shuphi) % Constants.q for v_prime_e, shuphi in zip(v_prime, s_hat_u_prime_hat_intt)]
+        m = ByteEncode([Compress(x, 1) for x in w], 1)
+
+        return m
