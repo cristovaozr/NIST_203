@@ -131,8 +131,9 @@ def Compress(x: int, m: int) -> int:
         m = Constants.q
     else:
         m = 1 << m
-        x += 1662
-    return ((m * x) // Constants.q) % m
+
+    u = (m * x + 1664) // Constants.q
+    return u % m
 
 
 def Decompress(x: int, m: int) -> int:

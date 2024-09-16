@@ -18,3 +18,25 @@ def bytes_to_hex(b: bytes) -> str:
         ret += f"{byte:02x}"
 
     return ret
+
+
+def print_poly_z256(name: str = None, t: [int] = None, count_per_line: int = 16) -> None:
+    if not t:
+        return
+
+    if name:
+        print(f"***** {name}:")
+    else:
+        print("*****")
+
+    for i in range(len(t)):
+        if i and i % count_per_line == 0:
+            print(f"{t[i]}")
+            continue
+
+        print(f"{t[i]}, ", end="")
+
+    if name:
+        print(f"***** {name}:")
+    else:
+        print("*****")
