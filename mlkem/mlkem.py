@@ -21,8 +21,11 @@ class MLKEM:
         self.dv = param_list["dv"]
 
     def KeyGen_internal(self, d: bytes, z: bytes) -> (bytes, bytes):
-        ek, dkpke, _ = self.kpke.KPKE_KeyGen(d)
+        ek, dkpke, A_hat = self.kpke.KPKE_KeyGen(d)
         dk = dkpke + ek + H(ek) + z
+        #
+        # print("**** Debug")
+        # print(A_hat)
 
         return ek, dk
 

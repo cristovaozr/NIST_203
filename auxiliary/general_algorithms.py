@@ -210,7 +210,7 @@ def SamplePolyCBD(b: bytes, eta: int) -> [int]:
             if b[(2*i*eta) // 8] & 1 << j:
                 x += 1
             if b[(2*i*eta + eta) // 8] & 1 << j:
-                x += 1
+                y += 1
 
         f[i] = (x - y) % Constants.q
 

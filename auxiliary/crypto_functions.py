@@ -107,6 +107,8 @@ class XOF:
 
     def __init__(self):
         self.ctx = hashlib.shake_128()
+        self.curr = 0
+        self.size = 0
 
     def Init(self) -> None:
         """Initializes the context
@@ -136,5 +138,12 @@ class XOF:
         :param size_bits: Number of bits to get from the XOF
         :return: Data
         """
-        b = self.ctx.digest(size_bits//8)
+        amount = size_bits//8
+        if self.curr + amount > self.size:
+            self.size += 1024
+
+        st_interval = self.curr
+        end_interval = self.curr+amount
+        self.curr += amount
+        b = self.ctx.digest(self.size)[st_interval:end_interval]
         return b

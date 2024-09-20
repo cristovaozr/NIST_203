@@ -40,3 +40,35 @@ def print_poly_z256(name: str = None, t: [int] = None, count_per_line: int = 16)
         print(f"***** {name}:")
     else:
         print("*****")
+
+
+def print_binary(d: bytes) -> None:
+    for i in range(len(d)*8):
+        if i and i % 32 == 0:
+            print("")
+
+        if d[i//8] & 1 << (7 - (i % 8)):
+            print("1", end=", ")
+        else:
+            print("0", end=", ")
+
+
+def hamming(aa: bytes, bb: bytes) -> int:
+    h = 0
+    for a, b in zip(aa, bb):
+        z = a ^ b
+        for i in range(8):
+            if z & (1 << i):
+                h += 1
+
+    return h
+
+
+def hamming2(hh: bytes) -> int:
+    h = 0
+    for z in hh:
+        for i in range(8):
+            if z & (1 << i):
+                h += 1
+
+    return h
