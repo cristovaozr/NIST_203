@@ -9,7 +9,6 @@
 from auxiliary.constants import FIPS203Parameters, Constants
 from auxiliary.crypto_functions import (G, PRF)
 from auxiliary.general_algorithms import SampleNTT, SamplePolyCBD, ByteEncode, Decompress, ByteDecode, Compress
-from misc.print_helper import print_poly_z256
 from ntt.ntt import NTT, MultiplyNTTs, SumNTTs, INTT
 
 
@@ -33,7 +32,6 @@ class KPKE:
             A_hat[i] = self.k*[[]]
             for j in range(self.k):
                 A_hat[i][j] = SampleNTT(rho + j.to_bytes(1) + i.to_bytes(1))
-                # print_poly_z256(f"A_hat[{i}][{j}]", A_hat[i][j], 32) TODO: REMOVE
 
         s = []
         for i in range(self.k):
@@ -63,7 +61,6 @@ class KPKE:
 
             elem = SumNTTs(elem, e_hat[i])
             t_hat.append(elem)
-            # print_poly_z256(f"t_hat[{i}]", elem, 32)  TODO: REMOVE!
 
         ekpke = bytearray()
         for i in range(self.k):
@@ -81,7 +78,6 @@ class KPKE:
         t_hat = []
         for i in range(self.k):
             t_hat.append(ByteDecode(ekpke[384*i:384*(i+1)], 12))
-            # print_poly_z256(f"t_hat[{i}]", t_hat[i], 32) TODO: REMOVE
 
         rho = ekpke[384*self.k:]
         if A_hat is None:
@@ -111,7 +107,7 @@ class KPKE:
         for i in range(self.k):
             elem = [0]*256
             for j in range(self.k):
-                u_temp = MultiplyNTTs(A_hat[j][i], y_hat[i])
+                u_temp = MultiplyNTTs(A_hat[j][i], y_hat[j])
                 elem = SumNTTs(elem, u_temp)
             u_hat.append(elem)
 
@@ -121,10 +117,8 @@ class KPKE:
 
         u = []
         for i in range(self.k):
-            # u[i] = SumNTTs(u[i], e1[i])
             ut = [(u + e) % Constants.q for u, e in zip(u_intt[i], e1[i])]
             u.append(ut)
-            # print_poly_z256(f"u[{i}]", u[i], 32)  # TODO: REMOVE
 
         mu = [Decompress(i, 1) for i in ByteDecode(m, 1)]
 
@@ -135,7 +129,6 @@ class KPKE:
 
         v_hat_intt = INTT(v_hat)
         v = [(v_e + e2_e + mu_e) % Constants.q for v_e, e2_e, mu_e in zip(v_hat_intt, e2, mu)]
-        # print_poly_z256("v", v, 32)  # TODO: REMOVE
 
         c1 = bytearray()
         for i in range(self.k):
@@ -155,11 +148,10 @@ class KPKE:
             uu_bd = ByteDecode(c1[i*32*self.du:(i+1)*32*self.du], self.du)
             uu = [Decompress(x, self.du) for x in uu_bd]
             u_prime.append(uu)
-            # print_poly_z256(f"u_prime[{i}]", u_prime[i], 32)  # TODO: REMOVE
 
         v_prime_bd = ByteDecode(c2, self.dv)
         v_prime = [Decompress(x, self.dv) for x in v_prime_bd]
-        # print_poly_z256("v_prime", v_prime, 32)  # TODO: REMOVE
+
         s_hat = []
         for i in range(self.k):
             ss = [Decompress(x, 12) for x in ByteDecode(dkpke[384*i:384*(i+1)], 12)]

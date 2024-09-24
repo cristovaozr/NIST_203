@@ -34,15 +34,15 @@ class FIPS203MLKEM512(FIPS203Parameters):
             "dv": 4
         }
 
-    class FIPS203MLKEM768(FIPS203Parameters):
-        def get_parameters(self):
-            return {
-                "k": 3,
-                "eta1": 2,
-                "eta2": 2,
-                "du": 10,
-                "dv": 4
-            }
+class FIPS203MLKEM768(FIPS203Parameters):
+    def get_parameters(self):
+        return {
+            "k": 3,
+            "eta1": 2,
+            "eta2": 2,
+            "du": 10,
+            "dv": 4
+        }
 
 
 class FIPS203MLKEM1024(FIPS203Parameters):
