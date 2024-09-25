@@ -6,8 +6,8 @@
 # License: Please see LICENSE file for the licensing of this work
 #
 
-from auxiliary.constants import Constants
-from misc.Exceptions import InvalidParameterException
+from ..auxiliary.constants import Constants
+from ..misc.Exceptions import InvalidParameterException
 
 ZETA_BIT_REV7 = [
     1, 1729, 2580, 3289, 2642, 630, 1897, 848,

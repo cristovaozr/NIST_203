@@ -7,7 +7,7 @@
 #
 
 import hashlib
-from misc.Exceptions import InvalidParameterException
+from ..misc.Exceptions import InvalidParameterException
 
 
 def PRF(eta: int, byte_array: bytes, b: bytes) -> bytes:

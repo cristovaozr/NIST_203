@@ -6,10 +6,10 @@
 # License: Please see LICENSE file for the licensing of this work
 #
 
-from auxiliary.constants import FIPS203Parameters, Constants
-from auxiliary.crypto_functions import (G, PRF)
-from auxiliary.general_algorithms import SampleNTT, SamplePolyCBD, ByteEncode, Decompress, ByteDecode, Compress
-from ntt.ntt import NTT, MultiplyNTTs, SumNTTs, INTT
+from ..auxiliary.constants import FIPS203Parameters, Constants
+from ..auxiliary.crypto_functions import (G, PRF)
+from ..auxiliary.general_algorithms import SampleNTT, SamplePolyCBD, ByteEncode, Decompress, ByteDecode, Compress
+from ..ntt.ntt import NTT, MultiplyNTTs, SumNTTs, INTT
 
 
 class KPKE:

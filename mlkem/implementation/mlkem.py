@@ -1,13 +1,13 @@
 #
-# mlkem.py - ML-KEM implementation -- the main algorithm of the ML-KEM
+# implementation.py - ML-KEM implementation -- the main algorithm of the ML-KEM
 #
 # Author: Cristóvão Zuppardo Rufino <cristovao.rufino@ufpe.br>, <cristovaozr@gmail.com>
 #
 # License: Please see LICENSE file for the licensing of this work
 #
-from auxiliary.constants import FIPS203Parameters
-from auxiliary.crypto_functions import H, G, J
-from kpke.kpke import KPKE
+from ..auxiliary.constants import FIPS203Parameters
+from ..auxiliary.crypto_functions import H, G, J
+from ..kpke.kpke import KPKE
 
 
 class MLKEM:

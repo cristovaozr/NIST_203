@@ -5,9 +5,9 @@
 #
 # License: Please see LICENSE file for the licensing of this work
 #
-from auxiliary.crypto_functions import XOF
-from misc.Exceptions import InvalidParameterException
-from auxiliary.constants import Constants
+from ..auxiliary.crypto_functions import XOF
+from ..misc.Exceptions import InvalidParameterException
+from ..auxiliary.constants import Constants
 
 
 def BitsToBytes(b: str) -> bytes:

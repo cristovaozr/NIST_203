@@ -18,6 +18,7 @@ class Constants:
     zeta = 17
     """Root of unity for Z_q finite field"""
 
+
 class FIPS203Parameters(metaclass=ABCMeta):
     @abstractmethod
     def get_parameters(self):

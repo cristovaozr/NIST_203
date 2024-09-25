@@ -11,7 +11,7 @@ from auxiliary.crypto_functions import *
 from kpke.kpke import KPKE
 from misc.print_helper import bytes_to_hex, print_binary, hamming, hamming2
 from misc.test_vectors import PKE512_ENCRYPT_TESTS
-from mlkem.mlkem import MLKEM
+from mlkem.implementation import MLKEM
 from ntt.ntt import (NTT, INTT, MultiplyNTTs, SumNTTs)
 
 from auxiliary.naive_algorithms import (naive_ntt, naive_intt)
