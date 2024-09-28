@@ -42,7 +42,7 @@ def receive_ek_from_alice(port: int) -> bytes:
     EK_SIZE_IN_BYTES = 800
 
     with socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM) as bob_socket:
-        bob_socket.bind(("localhost", port))
+        bob_socket.bind(("", port))
         bob_socket.listen()
         bob_conn, bob_addr = bob_socket.accept()
         with bob_conn:

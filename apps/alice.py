@@ -52,7 +52,7 @@ def send_ek_to_bob(address: str, port: int, ek: bytes) -> bool:
 def wait_for_bob_response(port: int) -> bytes:
     CIPHER_TEXT_SIZE_IN_BYTES = 768
     with socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM) as alice_socket:
-        alice_socket.bind(("localhost", port))
+        alice_socket.bind(("", port))
         alice_socket.listen()
         alice_conn, alice_addr = alice_socket.accept()
         with alice_conn:
