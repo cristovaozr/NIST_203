@@ -11,6 +11,7 @@ import sys
 import logging
 import argparse
 import json
+import socket
 
 from mlkem.implementation.mlkem import MLKEM
 from mlkem.auxiliary.constants import FIPS203MLKEM512
@@ -37,11 +38,31 @@ def get_argparse() -> argparse.ArgumentParser:
 
 
 def send_ek_to_bob(address: str, port: int, ek: bytes) -> bool:
-    return True
+    try:
+        with socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM) as bob_socket:
+            bob_address = (address, port)
+            bob_socket.connect(bob_address)
+            bob_socket.sendall(ek)
+        return True
+
+    except ConnectionRefusedError as e:
+        return False
 
 
 def wait_for_bob_response() -> bytes:
-    return bytes()
+    with socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM) as alice_socket:
+        alice_socket.bind(("localhost", 26287))
+        alice_socket.listen()
+        alice_conn, alice_addr = alice_socket.accept()
+        with alice_conn:
+            cipher_text = bytearray()
+            while len(cipher_text) < 768:
+                data = alice_conn.recv(768 - len(cipher_text))
+                if not data:
+                    break
+                cipher_text += data
+
+            return cipher_text
 
 
 def main() -> int:
@@ -90,6 +111,7 @@ def main() -> int:
     bob_address = bob_address_full.split(":")[0]
     bob_port = int(bob_address_full.split(":")[1])
     logger.debug(f"Sending Bob the ek at {bob_address}:{bob_port}")
+    logger.debug(f"The amount if data we are sending is {len(ek)} bytes")
     if not send_ek_to_bob(bob_address, bob_port, ek):
         logger.error(f"Failed sending ek to {bob_address}:{bob_port}!")
         return 1
@@ -101,7 +123,7 @@ def main() -> int:
     alice_k = alice_mlkem.Decaps(dk, ciphered_text)
 
     logger.debug("Shared secret obtained!")
-    logger.debug(f"It should be {alice_k}")
+    logger.debug(f"It should be {alice_k.hex()}")
 
     return 0
 
