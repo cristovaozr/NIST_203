@@ -49,15 +49,16 @@ def send_ek_to_bob(address: str, port: int, ek: bytes) -> bool:
         return False
 
 
-def wait_for_bob_response() -> bytes:
+def wait_for_bob_response(port: int) -> bytes:
+    CIPHER_TEXT_SIZE_IN_BYTES = 768
     with socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM) as alice_socket:
-        alice_socket.bind(("localhost", 26287))
+        alice_socket.bind(("localhost", port))
         alice_socket.listen()
         alice_conn, alice_addr = alice_socket.accept()
         with alice_conn:
             cipher_text = bytearray()
-            while len(cipher_text) < 768:
-                data = alice_conn.recv(768 - len(cipher_text))
+            while len(cipher_text) < CIPHER_TEXT_SIZE_IN_BYTES:
+                data = alice_conn.recv(CIPHER_TEXT_SIZE_IN_BYTES - len(cipher_text))
                 if not data:
                     break
                 cipher_text += data
@@ -67,9 +68,6 @@ def wait_for_bob_response() -> bytes:
 
 def main() -> int:
     logger = logging.getLogger("main")
-
-    print(sys.argv)
-
     logger.debug("Parsing parameters")
     parser = get_argparse()
     args = parser.parse_args(sys.argv[1:])
@@ -116,8 +114,19 @@ def main() -> int:
         logger.error(f"Failed sending ek to {bob_address}:{bob_port}!")
         return 1
 
+    connections = params.get("connections", None)
+    listen_port = 0
+    if connections:
+        listen_port = connections.get("port", 0)
+    else:
+        logger.error(f"No 'connection' section in {param_file}! Please fix this!")
+        return 1
+    if listen_port < 1024:
+        logger.error(f"Port provided is {listen_port}, which cannot be easily used. Please choose another port!")
+        return 1
+
     logger.debug("Waiting for Bob's response...")
-    ciphered_text = wait_for_bob_response()
+    ciphered_text = wait_for_bob_response(listen_port)
 
     logger.debug("Got Bob's response! Retrieving the shared message...")
     alice_k = alice_mlkem.Decaps(dk, ciphered_text)

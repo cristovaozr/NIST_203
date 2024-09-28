@@ -38,15 +38,17 @@ def get_argparse() -> argparse.ArgumentParser:
     return parser
 
 
-def receive_ek_from_alice() -> bytes:
+def receive_ek_from_alice(port: int) -> bytes:
+    EK_SIZE_IN_BYTES = 800
+
     with socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM) as bob_socket:
-        bob_socket.bind(("localhost", 2602))
+        bob_socket.bind(("localhost", port))
         bob_socket.listen()
         bob_conn, bob_addr = bob_socket.accept()
         with bob_conn:
             ek = bytearray()
-            while True:
-                data = bob_conn.recv(800 - len(ek))
+            while len(ek) < EK_SIZE_IN_BYTES:
+                data = bob_conn.recv(EK_SIZE_IN_BYTES - len(ek))
                 if not data:
                     break
                 ek += data
@@ -70,9 +72,6 @@ def send_alice_ciphered_text(address: str, port: int, c: bytes) -> bool:
 
 def main() -> int:
     logger = logging.getLogger("main")
-
-    print(sys.argv)
-
     logger.debug("Parsing parameters")
     parser = get_argparse()
     args = parser.parse_args(sys.argv[1:])
@@ -106,11 +105,22 @@ def main() -> int:
         logger.error("No address provided for Alice! She will be sad :'(")
         return 1
 
+    listen_port = 0
+    connections = params.get("connections", None)
+    if connections:
+        listen_port = connections.get("port", 0)
+    else:
+        logger.error(f"No 'connection' section in {param_file}! Please fix this!")
+        return 1
+    if listen_port < 1024:
+        logger.error(f"Port provided is {listen_port}, which cannot be easily used. Please choose another port!")
+        return 1
+
     alice_address = alice_address_full.split(":")[0]
     alice_port = int(alice_address_full.split(":")[1])
 
     logger.debug("Waiting for Alice's ek")
-    alice_ek = receive_ek_from_alice()
+    alice_ek = receive_ek_from_alice(listen_port)
 
     logger.debug(f"Received {len(alice_ek)} bytes from Alice!")
 

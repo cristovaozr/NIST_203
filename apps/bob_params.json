@@ -1,3 +1,6 @@
 {
-	"m":"deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef"
+	"m":"deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+	"connections": {
+		"port": 2602
+	}
 }
