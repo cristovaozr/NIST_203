@@ -17,12 +17,12 @@ For now, `bob` should be run first, so that Alice can connect to it and the exch
 
 To run `bob` you must do:
 ```bash
-PYTHONPATH=. ./apps/bob.py -p bob_params.json -a ALICE_IP_ADDRESS:26287
+PYTHONPATH=. ./apps/bob.py -p apps/bob_params.json -a ALICE_IP_ADDRESS:26287
 ```
 
 To run `alice` you must do:
 ```bash
-PYTHONPATH=. ./apps/alice.py -p alice_params.json -a BOB_IP_ADDRESS:2602
+PYTHONPATH=. ./apps/alice.py -p apps/alice_params.json -a BOB_IP_ADDRESS:2602
 ```
 
 ## Params file
